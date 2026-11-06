@@ -3,3 +3,135 @@
 
 # Ada Library Information
 *.ali
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talking Video Project</title>
+
+<style>
+body {
+  background: #171725;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+  padding: 15px;
+}
+
+.player {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+}
+
+video {
+  width: 100%;
+  border-radius: 12px;
+}
+
+#mouth {
+  position: absolute;
+  width: 35px;
+  height: 8px;
+  background: #8b2635;
+  border-radius: 50%;
+  left: 50%;
+  top: 62%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.talking {
+  animation: speak 0.15s infinite alternate;
+}
+
+@keyframes speak {
+  from { height: 5px; }
+  to { height: 24px; }
+}
+
+button {
+  padding: 12px 20px;
+  margin: 8px;
+  border: none;
+  border-radius: 8px;
+  background: #3979e8;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Talking Video App</h2>
+
+<input type="file" id="upload" accept="video/*">
+
+<div class="player">
+  <video id="video" controls playsinline></video>
+  <div id="mouth"></div>
+</div>
+
+<br>
+
+<button onclick="startTalking()">Start Talking</button>
+<button onclick="stopTalking()">Stop Talking</button>
+
+<br><br>
+
+<textarea id="message"
+placeholder="Write your conversation..."
+style="width:90%;height:70px;">
+Hello my love, how are you today?
+</textarea>
+
+<script>
+const video = document.getElementById("video");
+const mouth = document.getElementById("mouth");
+
+document.getElementById("upload").onchange = function() {
+  const file = this.files[0];
+
+  if(file) {
+    video.src = URL.createObjectURL(file);
+  }
+};
+
+function startTalking() {
+  speechSynthesis.cancel();
+
+  const message =
+    document.getElementById("message").value;
+
+  if(!message.trim()) return;
+
+  const voice = new SpeechSynthesisUtterance(message);
+  voice.lang = "en-US";
+  voice.rate = 0.9;
+
+  voice.onstart = function() {
+    mouth.classList.add("talking");
+  };
+
+  voice.onend = function() {
+    mouth.classList.remove("talking");
+  };
+
+  voice.onerror = function() {
+    mouth.classList.remove("talking");
+  };
+
+  window.currentVoice = voice;
+  speechSynthesis.speak(voice);
+}
+
+function stopTalking() {
+  speechSynthesis.cancel();
+  mouth.classList.remove("talking");
+}
+</script>
+
+</body>
+</html>
